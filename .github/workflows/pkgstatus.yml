@@ -1,0 +1,29 @@
+name: Check status of all LaTeX packages
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: # for manual running
+  schedule:
+    # every 02:01 on Friday
+    - cron: '1 2 * * 5'
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    container:
+      image: texlive/texlive:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check LaTeX packages
+        run: |
+          texlua pkgstatus.lua
+      - name: Upload failed list and logs
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: pkgstatus
+          path: |
+            faillist.txt
+            output
